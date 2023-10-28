@@ -69,7 +69,7 @@ def main():
     else:
         raise ValueError("Optimizer not supported.")
 
-    optimizer = SAM(model.parameters(), base_optimizer, lr=args.lr, rho=0.05, adaptive=False,)
+    optimizer = (SAMmodel.parameters(), base_optimizer, lr=args.lr, rho=0.05, adaptive=False,)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     recorder = RecorderMeter(args.epochs)
     recorder1 = RecorderMeter1(args.epochs)

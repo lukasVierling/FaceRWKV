@@ -8,9 +8,11 @@ import torch
 # torch._C._jit_set_profiling_mode(True)
 import torch.nn as nn
 from torch.nn import functional as F
+"""
 import pytorch_lightning as pl
 from pytorch_lightning.utilities import rank_zero_info, rank_zero_only
 from pytorch_lightning.strategies import DeepSpeedStrategy
+"""
 if importlib.util.find_spec('deepspeed'):
     import deepspeed
     from deepspeed.ops.adam import DeepSpeedCPUAdam, FusedAdam
@@ -712,7 +714,8 @@ class L2Wrap(torch.autograd.Function):
         gy = torch.zeros_like(y)
         gy.scatter_(-1, ids, maxx * factor)
         return (grad_output, gy)
-
+    
+""""
 
 class RWKV(pl.LightningModule):
     def __init__(self, args):
@@ -979,3 +982,4 @@ class RWKV(pl.LightningModule):
         gc.collect()
         torch.cuda.empty_cache()
         return m
+"""
