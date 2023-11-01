@@ -5,7 +5,7 @@ Facial expression recognition is an important task in computer vision with vario
 ## Project Steps
 1. 📚 **Literature Review:** Understand the current research on facial expression recognition, focusing on RWKV and PosterV2. ✅
 2. ⚙️ **Code Setup:** Get the code running for RWKV and PosterV2. (🔄 In Progress)
-3. 🏗️ **Architecture Integration:** Replace the transformer in PosterV2 with the RWKV layer. This is the crucial part of the project, requiring significant effort due to its complexity. 
+3. 🏗️ **Architecture Integration:** Replace the transformer in PosterV2 with the RWKV layer. This is the crucial part of the project, requiring significant effort due to its complexity. (🔄 In Progress)
 4. 🏋️‍♂️ **Training:** Train the new architecture. 
 5. 📊 **Evaluation:** Compare the results achieved by the integrated RWKV architecture. 
 
