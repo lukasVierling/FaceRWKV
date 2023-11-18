@@ -68,57 +68,8 @@ epoch_length_fixed = 10000                          # make an 'epoch' very short
 rwkv_emb_scale = 0.4                                # scale of initial embedding. 0.4 is a good choice
 rwkv_tiny_attn = 0#64 if (datafile_type == 0 and ctx_len > 600) else 0 # extra tiny attention dim, useful for long ctx char-level english
 rwkv_tiny_head = 1                                  # 1 is good enough. 8 is slow
-# n_side_proj = 512                                 # extra 'side projection', quite useful for BPE models 
+# n_side_proj = 512  
 
-########################################################################################################
-# Load data
-########################################################################################################
-
-print('loading data... ' + datafile)
-
-class Dataset(Dataset):
-    def __init__(self, data, model_level, ctx_len):
-        print('building token list...', end=' ')
-        if model_level == 'word':
-            import re
-            data = re.sub(r'(\n|\.|\,|\?|\!|\:|\;|\-|\—|\||\'|\"|\`|\(|\)|[0-9]|\[|\]|\{|\}|\=|\+|\*|\\|\/|\~|\&|\$|\#|\%)', r' \g<0> ', data)
-            data = re.sub(' +',' ',data)
-            print('splitting token...')
-            data = data.lower().split(' ')
-        unique = sorted(list(set(data)))
-        # print()
-        # for u in unique:
-        #     print(u, end=' ')
-        # print('\n\n')
-
-        xx = 0
-        xxObj = {}
-        for u in unique:
-            xxObj[xx] = u
-            xx += 1
-        with open('vocab.json', "w", encoding="utf-16") as vocab_file:
-            vocab_file.write(json.dumps(xxObj, ensure_ascii=False))
-
-        data_size, vocab_size = len(data), len(unique)
-        print('data has %d %ss, %d unique.' % (data_size, model_level, vocab_size))
-        self.stoi = { ch:i for i,ch in enumerate(unique) }
-        self.itos = { i:ch for i,ch in enumerate(unique) }
-        self.ctx_len = ctx_len
-        self.vocab_size = vocab_size
-        self.data = data
-
-    def __len__(self):
-        return epoch_length_fixed
-
-    def __getitem__(self, idx):
-        i = np.random.randint(0, len(self.data) - (self.ctx_len + 1)) # cheat: pick a random spot in dataset
-        chunk = self.data[i:i+self.ctx_len+1]
-        dix = [self.stoi[s] for s in chunk]
-        x = torch.tensor(dix[:-1], dtype=torch.long)
-        y = torch.tensor(dix[1:], dtype=torch.long)
-        return x, y
-
-train_dataset = Dataset(open(datafile, "r", encoding=datafile_encoding).read(), model_level, ctx_len)
 
 ########################################################################################################
 # Train model

@@ -2,28 +2,25 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+import math
 
-from RWKV import Block
+from models.RWKV import Block
 
 class FaceRWKV(nn.Module):
-    def __init__(self, config, patch_size, embed_dim, n_layers, n_classes):
+    def __init__(self, config):
         """
         A Face Recognition model utilizing RWKV blocks.
 
         Args:
         - config: Configuration for the model.
-        - patch_size: Size of patches to be extracted from input images.
-        - embed_dim: Dimension of the embedded representation.
-        - n_layers: Number of RWKV blocks.
-        - n_classes: Number of output classes.
 
         """
         super().__init__()
         self.config = config
-        self.patch_size = patch_size
-        self.embed_dim = embed_dim
-        self.n_layers = n_layers
-        self.n_classes = n_classes
+        self.patch_size = config.patch_size
+        self.embed_dim = config.n_embd
+        self.n_layers = config.n_layer
+        self.n_classes = config.n_classes
 
         # Linear projection for the patches
         self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
@@ -85,3 +82,25 @@ def image_to_patches(input_image, patch_size):
     patches = patches.permute(0, 2, 1, 3, 4).contiguous()
 
     return patches
+
+class RWKVConfig:
+    def __init__(self):
+        # Model architecture parameters
+        self.n_embd = 768  # Embedding size
+        self.n_attn = 12  # Number of attention heads
+        self.n_head = 12  # Number of heads for RWKV_TinyAttn
+        self.ctx_len = 1024  # Context length -> apparently crashes for too short context????
+        #self.vocab_size = 50000  # Vocabulary size
+        self.rwkv_emb_scale = 1.0  # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
+        self.rwkv_tiny_attn = 64  # Tiny attention size for RWKV_TinyAttn
+        self.rwkv_tiny_head = 2  # Number of tiny attention heads for RWKV_TinyAttn
+        self.n_ffn = 3072  # Hidden size for RWKV_ChannelMix
+        self.n_layer = 12   # Number of RWKV blocks
+        self.patch_size = 16 # Size of patches to be extracted from input images
+        self.n_classes = 10 # Number of output classes
+
+        # Initialization parameters
+        self.scale_init = 0  # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
+
+    def calculate_decay_speed(self, h):
+        return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
