@@ -24,6 +24,9 @@ class CAERSRDataset(Dataset):
         
         return image, label
     
+    def get_classes(self):
+        return len(self.class_dict)
+    
     def create_class_dict(self):
         class_dict = {}
         folders = os.listdir(self.data_dir)

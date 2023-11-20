@@ -19,6 +19,7 @@ trainloader = data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2
 
 # get the model
 config = RWKVConfig()
+config.num_classes = dataset.get_classes()
 model = FaceRWKV(config)
 
 # get the loss function
