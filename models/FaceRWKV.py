@@ -96,8 +96,8 @@ class RWKVConfig:
         self.rwkv_tiny_head = 2  # Number of tiny attention heads for RWKV_TinyAttn
         self.n_ffn = 3072  # Hidden size for RWKV_ChannelMix
         self.n_layer = 12   # Number of RWKV blocks
-        self.patch_size = 16 # Size of patches to be extracted from input images
-        self.n_classes = 10 # Number of output classes
+        self.patch_size = 20 # Size of patches to be extracted from input images
+        self.n_classes = 7 # Number of output classes
 
         # Initialization parameters
         self.scale_init = 0  # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix

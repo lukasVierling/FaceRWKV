@@ -13,10 +13,12 @@ from models.FaceRWKV import FaceRWKV, RWKVConfig
 from Dataset import CAERSRDataset
 
 def main():
+    print("cuda avail:", torch.cuda.is_available())
+    batch_size = 1
     # get the data set
     data_dir = 'data/CAER-S/train'
     dataset = CAERSRDataset(data_dir)
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
     # get the model
     config = RWKVConfig()

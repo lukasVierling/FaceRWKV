@@ -3,16 +3,18 @@ import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
+import torch.nn
 
 class CAERSRDataset(Dataset):
     def __init__(self, data_dir):
         self.data_dir = data_dir
         self.class_dict = self.create_class_dict() # {'class_name': 0, 'class_name': 1, ...}
         self.file_paths = self.get_file_paths() # ['data_dir/class_name/file_name', ...]
-        self.transform = torch.nn.Sequential(
+        self.transforms = transforms.Compose([
             transforms.ToTensor(),
             transforms.Resize((400, 600)),
-        )
+        ])
+        
 
     def __len__(self):
         return len(self.file_paths)
@@ -22,8 +24,8 @@ class CAERSRDataset(Dataset):
         image = Image.open(file_path).convert('RGB')
         label = self.get_label(file_path)
 
-        image = self.transform(image)
-        label = torch.tensor([label]) # not sure about bracets
+        image = self.transforms(image)
+        label = torch.tensor(label) # not sure about bracets
         
         return image, label
     

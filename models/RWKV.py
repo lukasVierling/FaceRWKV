@@ -197,7 +197,6 @@ class Block(nn.Module):
         self.mlp = RWKV_ChannelMix(config, layer_id)
 
     def forward(self, x):
-        print('x', x.shape)
         x = x + self.attn(self.ln1(x))
         x = x + self.mlp(self.ln2(x))
         
