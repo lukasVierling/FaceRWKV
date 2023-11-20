@@ -10,7 +10,7 @@ import torch.utils.data as data
 import tensorboardX
 
 from models.FaceRWKV import FaceRWKV, RWKVConfig
-from data.Dataset import CAERSRDataset
+from Dataset import CAERSRDataset
 
 # get the data set
 data_dir = 'data/CAER-S/train'
