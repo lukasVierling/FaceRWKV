@@ -13,7 +13,7 @@ from models.FaceRWKV import FaceRWKV, RWKVConfig
 from data.Dataset import CAERSRDataset
 
 # get the data set
-data_dir = 'data/CAER-SR/train'
+data_dir = 'data/CAER-S/train'
 dataset = CAERSRDataset(data_dir)
 trainloader = data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2)
 
@@ -56,9 +56,9 @@ for epoch in range(num_epochs):
             writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
             writer.add_scalar('accuracy', 0.0, epoch*len(trainloader)+i)
     if epoch % 5 == 4:
-        torch.save(model.state_dict(), 'models/CAER-SR/epoch' + str(epoch+1) + '.pth')
+        torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(epoch+1) + '.pth')
 
 
 print('Finished Training')
 #save last model
-torch.save(model.state_dict(), 'models/CAER-SR/epoch' + str(num_epochs) + '.pth')
+torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
