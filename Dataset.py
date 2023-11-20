@@ -9,7 +9,10 @@ class CAERSRDataset(Dataset):
         self.data_dir = data_dir
         self.class_dict = self.create_class_dict() # {'class_name': 0, 'class_name': 1, ...}
         self.file_paths = self.get_file_paths() # ['data_dir/class_name/file_name', ...]
-        self.reshaper = transforms.Resize((400, 600))
+        self.transform = torch.nn.Sequential(
+            transforms.ToTensor(),
+            transforms.Resize((400, 600)),
+        )
 
     def __len__(self):
         return len(self.file_paths)
@@ -18,9 +21,8 @@ class CAERSRDataset(Dataset):
         file_path = self.file_paths[idx]
         image = Image.open(file_path).convert('RGB')
         label = self.get_label(file_path)
-        
-        transform = transforms.ToTensor()
-        image = transform(image)
+
+        image = self.transform(image)
         label = torch.tensor([label]) # not sure about bracets
         
         return image, label
