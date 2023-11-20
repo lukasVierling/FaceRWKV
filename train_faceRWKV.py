@@ -29,8 +29,6 @@ def main():
         device = torch.device('cpu')
     model.to(device)
 
-
-
     # get the loss function
     criterion = nn.CrossEntropyLoss()
     criterion = criterion.to(device)
