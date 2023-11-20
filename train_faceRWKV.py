@@ -5,7 +5,7 @@ import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
-import torch.utils.data as data
+import torch.utils.data
 
 import tensorboardX
 
@@ -16,7 +16,7 @@ def main():
     # get the data set
     data_dir = 'data/CAER-S/train'
     dataset = CAERSRDataset(data_dir)
-    trainloader = data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(dataset, batch_size=4, shuffle=True, num_workers=2)
 
     # get the model
     config = RWKVConfig()
@@ -75,5 +75,5 @@ def main():
     #save last model
     torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
