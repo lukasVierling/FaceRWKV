@@ -46,7 +46,7 @@ def main():
     model = CNNClassifier(train_dataset.get_classes())
     CUDA = True
     if CUDA:
-        device = torch.device('cuda')
+        device = torch.device('cuda:1')
     else:
         device = torch.device('cpu')
     model.to(device)
