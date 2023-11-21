@@ -90,11 +90,11 @@ def main():
         writer.add_scalar('val_acc', val_acc, epoch)
         # save model every 5 epochs
         if epoch % 5 == 4:
-            torch.save(model.state_dict(), f'checkpoints/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
+            torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
 
     print('Finished Training')
     # save last model
-    torch.save(model.state_dict(), f'checkpoints/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
+    torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
 
 def validate(model, valloader, device):
     correct = 0
