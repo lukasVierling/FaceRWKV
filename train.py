@@ -9,6 +9,7 @@ import torch.utils.data
 from tqdm import tqdm
 import socket
 import time
+import os
 
 import tensorboardX
 
@@ -16,6 +17,11 @@ from models.FaceRWKV import FaceRWKV, RWKVConfig
 from Dataset import CAERSRDataset
 
 def main():
+    #save path
+    save_dir = 'checkpoint'
+    hostname = socket.gethostname()
+    current_time = str(time.time())
+
     print("cuda avail:", torch.cuda.is_available())
     batch_size = 64
     log_n = 500
@@ -90,11 +96,13 @@ def main():
         writer.add_scalar('val_acc', val_acc, epoch)
         # save model every 5 epochs
         if epoch % 5 == 4:
-            torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
+            save_path = os.path.join(save_dir, f'run_{hostname}_{current_time}/epoch{str(epoch + 1)}.pth')
+            torch.save(model.state_dict(), save_path)
 
     print('Finished Training')
     # save last model
-    torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
+    save_path = os.path.join(save_dir, f'run_{hostname}_{current_time}/epoch{str(num_epochs + 1)}.pth')
+    torch.save(model.state_dict(), save_path)
 
 def validate(model, valloader, device):
     correct = 0
