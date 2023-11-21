@@ -11,13 +11,18 @@ import socket
 import time
 import os
 
-
 import tensorboardX
 
 from models.FaceRWKV import FaceRWKV, RWKVConfig
+from models.CNNmodel import CNNClassifier
 from Dataset import CAERSRDataset
 
 def main():
+    #save path
+    save_dir = 'checkpoint'
+    hostname = socket.gethostname()
+    current_time = str(time.time())
+
     print("cuda avail:", torch.cuda.is_available())
     batch_size = 64
     log_n = 500
