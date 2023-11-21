@@ -9,6 +9,8 @@ import torch.utils.data
 from tqdm import tqdm
 import socket
 import time
+import os
+
 
 import tensorboardX
 
@@ -21,8 +23,8 @@ def main():
     log_n = 500
     resolution = (400,600)
     # get the data set
-    train_data_dir = 'data/CAER-S/train'
-    val_data_dir = 'data/CAER-S/test'
+    train_data_dir = 'data/CAER-S/overfitting'
+    val_data_dir = 'data/CAER-S/overfitting'
 
     train_dataset = CAERSRDataset(train_data_dir, resolution)
     val_dataset = CAERSRDataset(val_data_dir, resolution)
@@ -55,7 +57,7 @@ def main():
     writer = tensorboardX.SummaryWriter()
 
     # train the model
-    num_epochs = 30
+    num_epochs = 1
     for epoch in range(num_epochs):
         running_loss = 0.0
         # Use tqdm to create a progress bar for the training batches
@@ -90,11 +92,24 @@ def main():
         writer.add_scalar('val_acc', val_acc, epoch)
         # save model every 5 epochs
         if epoch % 5 == 4:
-            torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
+            #torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
+                    # Create the directory if it doesn't exist
+            checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+            os.makedirs(checkpoint_dir, exist_ok=True)
+
+            # Save the model's state dictionary
+            checkpoint_path = os.path.join(checkpoint_dir, f'epoch{epoch+1}.pth')
+            torch.save(model.state_dict(), checkpoint_path)
 
     print('Finished Training')
     # save last model
-    torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
+    #torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
+    checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+    os.makedirs(checkpoint_dir, exist_ok=True)
+
+    # Save the model's state dictionary
+    checkpoint_path = os.path.join(checkpoint_dir, f'epoch{num_epochs}.pth')
+    torch.save(model.state_dict(), checkpoint_path)
 
 def validate(model, valloader, device):
     correct = 0
