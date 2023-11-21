@@ -18,9 +18,8 @@ def main():
     log_n = 500
     resolution = (400,600)
     # get the data set
-    data_dir = 'data/CAER-S/train'
-    dataset = CAERSRDataset(data_dir)
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    train_data_dir = 'data/CAER-S/train'
+    val_data_dir = 'data/CAER-S/valid'
 
     train_dataset = CAERSRDataset(train_data_dir, resolution)
     val_dataset = CAERSRDataset(val_data_dir, resolution)
@@ -34,7 +33,8 @@ def main():
     config.resolution = resolution
     config.num_patches = resolution[0]*resolution[1]//(config.patch_size**2) #length of the sequence, necessary to determine positional encoding in model
     model = FaceRWKV(config)
-    CUDA = False
+    
+    CUDA = True
     if CUDA:
         device = torch.device('cuda')
     else:
@@ -46,7 +46,7 @@ def main():
     criterion = criterion.to(device)
 
     # get the optimizer
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters())
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
@@ -73,12 +73,16 @@ def main():
 
             # print statistics
             running_loss += loss.item()
-            if i % 2000 == 1999: # print every 2000 mini-batches
-                print('[%d, %5d] loss: %.3f' % (epoch+1, i+1, running_loss/2000))
+            if i % log_n == log_n-1: # print every 2000 mini-batches
+                print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
-                writer.add_scalar('accuracy', 0.0, epoch*len(trainloader)+i)
+        #print and log val acc
+        val_acc = validate(model, valloader, device)
+        print('val acc:', val_acc)
+        writer.add_scalar('val_acc', val_acc, epoch)
+        #save model every 5 epochs
         if epoch % 5 == 4:
             torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(epoch+1) + '.pth')
 
@@ -86,6 +90,20 @@ def main():
     print('Finished Training')
     #save last model
     torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
+
+def validate(model, valloader, device):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in valloader:
+            images, labels = data
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += len(labels)
+            correct += (predicted == labels).sum().item()
+    return correct / total
 
 if __name__ == "__main__":
     main()
