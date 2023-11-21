@@ -87,15 +87,15 @@ class RWKVConfig:
     def __init__(self):
         # Model architecture parameters
         self.n_embd = 256           # Embedding size
-        self.n_attn = 1             # Number of attention heads
-        self.n_head = 1             # Number of heads for RWKV_TinyAttn
+        self.n_attn = 4             # Number of attention heads
+        self.n_head = 4             # Number of heads for RWKV_TinyAttn
         self.ctx_len = 256          # Context length -> apparently crashes for too short context????
         #self.vocab_size = 50000    # Vocabulary size
         self.rwkv_emb_scale = 1.0   # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
         self.rwkv_tiny_attn = 64    # Tiny attention size for RWKV_TinyAttn
         self.rwkv_tiny_head = 2     # Number of tiny attention heads for RWKV_TinyAttn
-        self.n_ffn = 200            # Hidden size for RWKV_ChannelMix
-        self.n_layer = 2            # Number of RWKV blocks
+        self.n_ffn = 512            # Hidden size for RWKV_ChannelMix
+        self.n_layer = 4            # Number of RWKV blocks
         self.patch_size = 20        # Size of patches to be extracted from input images
         self.n_classes = 7          # Number of output classes
 
