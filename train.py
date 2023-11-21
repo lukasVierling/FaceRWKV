@@ -6,6 +6,7 @@ import torchvision
 import torchvision.transforms as transforms
 import numpy as np
 import torch.utils.data
+from tqdm import tqdm
 
 import tensorboardX
 
@@ -55,7 +56,8 @@ def main():
     num_epochs = 30
     for epoch in range(num_epochs):
         running_loss = 0.0
-        for i, data in enumerate(trainloader, 0):
+        # Use tqdm to create a progress bar for the training batches
+        for i, data in enumerate(tqdm(trainloader, desc=f'Epoch {epoch+1}/{num_epochs}', leave=False)):
             # get the inputs
             inputs, labels = data
             inputs = inputs.to(device)
@@ -78,18 +80,17 @@ def main():
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
-        #print and log val acc
+        # print and log val acc
         val_acc = validate(model, valloader, device)
         print('val acc:', val_acc)
         writer.add_scalar('val_acc', val_acc, epoch)
-        #save model every 5 epochs
+        # save model every 5 epochs
         if epoch % 5 == 4:
             torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(epoch+1) + '.pth')
 
-
-    print('Finished Training')
-    #save last model
-    torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
+print('Finished Training')
+# save last model
+torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
 
 def validate(model, valloader, device):
     correct = 0
