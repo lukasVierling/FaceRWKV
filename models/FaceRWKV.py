@@ -26,7 +26,7 @@ class FaceRWKV(nn.Module):
         # Linear projection for the patches
         self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
         # Learned positional embedding
-        self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches + 1, self.embed_dim))
+        self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches, self.embed_dim))
 
         # RWKV Blocks
         self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
