@@ -14,11 +14,11 @@ from Dataset import CAERSRDataset
 
 def main():
     print("cuda avail:", torch.cuda.is_available())
-    batch_size = 1
+    batch_size = 64
     log_n = 500
     # get the data set
     train_data_dir = 'data/CAER-S/train'
-    val_data_dir = 'data/CAER-S/validation'
+    val_data_dir = 'data/CAER-S/valid'
 
     train_dataset = CAERSRDataset(train_data_dir)
     val_dataset = CAERSRDataset(val_data_dir)
@@ -28,9 +28,10 @@ def main():
     # get the model
     config = RWKVConfig()
     config.num_classes = train_dataset.get_classes()
-    config.ctx_len = 600*400 / (config.patch_size**2) #should reduce unnecessary padding
+    config.ctx_len = int(600*400 / (config.patch_size**2)) #should reduce unnecessary padding
     model = FaceRWKV(config)
-    CUDA = False
+    
+    CUDA = True
     if CUDA:
         device = torch.device('cuda')
     else:
@@ -42,7 +43,7 @@ def main():
     criterion = criterion.to(device)
 
     # get the optimizer
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters())
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
@@ -70,7 +71,7 @@ def main():
             # print statistics
             running_loss += loss.item()
             if i % log_n == 0: # print every 2000 mini-batches
-                print('[%d, %5d] loss: %.3f' % (epoch+1, i+1, running_loss/2000))
+                print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/2000))
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
