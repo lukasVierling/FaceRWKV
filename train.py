@@ -28,7 +28,7 @@ def main():
     # get the model
     config = RWKVConfig()
     config.num_classes = train_dataset.get_classes()
-    config.ctx_len = 600*400 / (config.patch_size**2) #should reduce unnecessary padding
+    config.ctx_len = int(600*400 / (config.patch_size**2)) #should reduce unnecessary padding
     model = FaceRWKV(config)
     CUDA = False
     if CUDA:
@@ -70,13 +70,12 @@ def main():
             # print statistics
             running_loss += loss.item()
             if i % log_n == 0: # print every 2000 mini-batches
-                print('[%d, %5d] loss: %.3f' % (epoch+1, i+1, running_loss/2000))
+                print('[%d, %5d] loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
-                writer.add_scalar('accuracy', 0.0, epoch*len(trainloader)+i)
         #print and log val acc
-        val_acc = validate(model, valloader)
+        val_acc = validate(model, valloader, device)
         print('val acc:', val_acc)
         writer.add_scalar('val_acc', val_acc, epoch)
         #save model every 5 epochs
@@ -88,12 +87,14 @@ def main():
     #save last model
     torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
 
-def validate(model, valloader):
+def validate(model, valloader, device):
     correct = 0
     total = 0
     with torch.no_grad():
         for data in valloader:
             images, labels = data
+            images = images.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += len(labels)
