@@ -16,19 +16,22 @@ def main():
     print("cuda avail:", torch.cuda.is_available())
     batch_size = 64
     log_n = 500
+    resolution = (400,600)
     # get the data set
     train_data_dir = 'data/CAER-S/train'
     val_data_dir = 'data/CAER-S/valid'
 
-    train_dataset = CAERSRDataset(train_data_dir)
-    val_dataset = CAERSRDataset(val_data_dir)
+    train_dataset = CAERSRDataset(train_data_dir, resolution)
+    val_dataset = CAERSRDataset(val_data_dir, resolution)
 
     trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
     # get the model
     config = RWKVConfig()
     config.num_classes = train_dataset.get_classes()
-    config.ctx_len = int(int(600*400 / (config.patch_size**2))) #should reduce unnecessary padding
+    config.ctx_len = int(resolution[0]*resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
+    config.resolution = resolution
+    config.num_patches = resolution[0]*resolution[1]//(config.patch_size**2) #length of the sequence, necessary to determine positional encoding in model
     model = FaceRWKV(config)
     
     CUDA = True

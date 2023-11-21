@@ -21,13 +21,15 @@ class FaceRWKV(nn.Module):
         self.embed_dim = config.n_embd
         self.n_layers = config.n_layer
         self.n_classes = config.n_classes
+        self.num_patches = config.num_patches
 
         # Linear projection for the patches
         self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
+        # Learned positional embedding
+        self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches + 1, self.embed_dim))
 
         # RWKV Blocks
         self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
-
         # MLP Head
         self.mlp_head = nn.Sequential(
             nn.Linear(self.embed_dim, self.embed_dim),
@@ -52,11 +54,13 @@ class FaceRWKV(nn.Module):
         # Flatten for linear layer
         x = x.flatten(2)
         x = self.linear_projection(x)
+        x = x + self.pos_embedding
         # x.shape = (batch_size, 14*14, embed_dim)
         x = self.blocks(x)
         # Extract last hidden state
         # x.shape = (batch_size, n_patches, embed_dim) -> (batch_size, embed_dim)
-        x = x[:, -1, :]
+        #x = x[:, -1, :]
+        x = torch.mean(x, dim=1)
         # x.shape = (batch_size, n_classes)
         x = self.mlp_head(x)
         return x
@@ -98,6 +102,8 @@ class RWKVConfig:
         self.n_layer = 4            # Number of RWKV blocks
         self.patch_size = 20        # Size of patches to be extracted from input images
         self.n_classes = 7          # Number of output classes
+        self.resolution = (600,400)
+        self.num_patches = self.resolution[0]*self.resolution[1]//(self.patch_size**2) #should be calculated manually
 
         # Initialization parameters
         self.scale_init = 0  # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
