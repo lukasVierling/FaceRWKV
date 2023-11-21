@@ -28,8 +28,8 @@ def main():
     log_n = 500
     resolution = (400,600)
     # get the data set
-    train_data_dir = 'data/CAER-S/overfitting'
-    val_data_dir = 'data/CAER-S/overfitting'
+    train_data_dir = 'data/CAER-S/train'
+    val_data_dir = 'data/CAER-S/test'
 
     train_dataset = CAERSRDataset(train_data_dir, resolution)
     val_dataset = CAERSRDataset(val_data_dir, resolution)
@@ -42,8 +42,8 @@ def main():
     config.ctx_len = int(resolution[0]*resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
     config.resolution = resolution
     config.num_patches = resolution[0]*resolution[1]//(config.patch_size**2) #length of the sequence, necessary to determine positional encoding in model
-    model = FaceRWKV(config)
-    
+    #model = FaceRWKV(config)
+    model = CNNClassifier(train_dataset.get_classes())
     CUDA = True
     if CUDA:
         device = torch.device('cuda')
@@ -62,7 +62,7 @@ def main():
     writer = tensorboardX.SummaryWriter()
 
     # train the model
-    num_epochs = 1
+    num_epochs = 30
     for epoch in range(num_epochs):
         running_loss = 0.0
         # Use tqdm to create a progress bar for the training batches
