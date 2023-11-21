@@ -90,9 +90,9 @@ def main():
         if epoch % 5 == 4:
             torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(epoch+1) + '.pth')
 
-print('Finished Training')
-# save last model
-torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
+    print('Finished Training')
+    # save last model
+    torch.save(model.state_dict(), 'models/CAER-S/epoch' + str(num_epochs) + '.pth')
 
 def validate(model, valloader, device):
     correct = 0
