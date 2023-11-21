@@ -70,7 +70,7 @@ def main():
 
             # print statistics
             running_loss += loss.item()
-            if i % log_n == 0: # print every 2000 mini-batches
+            if i % log_n == log_n-1: # print every 2000 mini-batches
                 print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
                 #tensorboard logging
