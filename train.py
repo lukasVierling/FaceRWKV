@@ -97,11 +97,13 @@ def main():
         # save model every 5 epochs
         if epoch % 5 == 4:
             save_path = os.path.join(save_dir, f'run_{hostname}_{current_time}/epoch{str(epoch + 1)}.pth')
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save(model.state_dict(), save_path)
 
     print('Finished Training')
     # save last model
     save_path = os.path.join(save_dir, f'run_{hostname}_{current_time}/epoch{str(num_epochs + 1)}.pth')
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
     torch.save(model.state_dict(), save_path)
 
 def validate(model, valloader, device):
