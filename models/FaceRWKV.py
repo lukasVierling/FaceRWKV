@@ -21,13 +21,15 @@ class FaceRWKV(nn.Module):
         self.embed_dim = config.n_embd
         self.n_layers = config.n_layer
         self.n_classes = config.n_classes
+        self.num_patches = config.num_patches
 
         # Linear projection for the patches
         self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
+        # Learned positional embedding
+        self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches + 1, self.embed_dim))
 
         # RWKV Blocks
         self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
-
         # MLP Head
         self.mlp_head = nn.Sequential(
             nn.Linear(self.embed_dim, self.embed_dim),
@@ -52,11 +54,13 @@ class FaceRWKV(nn.Module):
         # Flatten for linear layer
         x = x.flatten(2)
         x = self.linear_projection(x)
+        x = x + self.pos_embedding
         # x.shape = (batch_size, 14*14, embed_dim)
         x = self.blocks(x)
         # Extract last hidden state
         # x.shape = (batch_size, n_patches, embed_dim) -> (batch_size, embed_dim)
-        x = x[:, -1, :]
+        #x = x[:, -1, :]
+        x = torch.mean(x, dim=1)
         # x.shape = (batch_size, n_classes)
         x = self.mlp_head(x)
         return x
@@ -86,18 +90,20 @@ def image_to_patches(input_image, patch_size):
 class RWKVConfig:
     def __init__(self):
         # Model architecture parameters
-        self.n_embd = 768  # Embedding size
-        self.n_attn = 12  # Number of attention heads
-        self.n_head = 12  # Number of heads for RWKV_TinyAttn
-        self.ctx_len = 1024  # Context length -> apparently crashes for too short context????
-        #self.vocab_size = 50000  # Vocabulary size
-        self.rwkv_emb_scale = 1.0  # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
-        self.rwkv_tiny_attn = 64  # Tiny attention size for RWKV_TinyAttn
-        self.rwkv_tiny_head = 2  # Number of tiny attention heads for RWKV_TinyAttn
-        self.n_ffn = 3072  # Hidden size for RWKV_ChannelMix
-        self.n_layer = 12   # Number of RWKV blocks
-        self.patch_size = 20 # Size of patches to be extracted from input images
-        self.n_classes = 7 # Number of output classes
+        self.n_embd = 256           # Embedding size
+        self.n_attn = 4             # Number of attention heads
+        self.n_head = 4             # Number of heads for RWKV_TinyAttn
+        self.ctx_len = 256          # Context length -> apparently crashes for too short context????
+        #self.vocab_size = 50000    # Vocabulary size
+        self.rwkv_emb_scale = 1.0   # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
+        self.rwkv_tiny_attn = 64    # Tiny attention size for RWKV_TinyAttn
+        self.rwkv_tiny_head = 2     # Number of tiny attention heads for RWKV_TinyAttn
+        self.n_ffn = 512            # Hidden size for RWKV_ChannelMix
+        self.n_layer = 4            # Number of RWKV blocks
+        self.patch_size = 20        # Size of patches to be extracted from input images
+        self.n_classes = 7          # Number of output classes
+        self.resolution = (600,400)
+        self.num_patches = self.resolution[0]*self.resolution[1]//(self.patch_size**2) #should be calculated manually
 
         # Initialization parameters
         self.scale_init = 0  # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix

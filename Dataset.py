@@ -6,13 +6,13 @@ from PIL import Image
 import torch.nn
 
 class CAERSRDataset(Dataset):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, resolution):
         self.data_dir = data_dir
         self.class_dict = self.create_class_dict() # {'class_name': 0, 'class_name': 1, ...}
         self.file_paths = self.get_file_paths() # ['data_dir/class_name/file_name', ...]
         self.transforms = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Resize((400, 600)),
+            transforms.Resize(resolution),
         ])
         
 
