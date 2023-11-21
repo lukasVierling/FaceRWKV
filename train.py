@@ -46,7 +46,7 @@ def main():
     
     CUDA = True
     if CUDA:
-        device = torch.device('cuda:1')
+        device = torch.device('cuda:0')
     else:
         device = torch.device('cpu')
     model.to(device)
@@ -116,19 +116,19 @@ def main():
     checkpoint_path = os.path.join(checkpoint_dir, f'epoch{num_epochs}.pth')
     torch.save(model.state_dict(), checkpoint_path)
 
-def validate(model, valloader, device):
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for data in valloader:
-            images, labels = data
-            images = images.to(device)
-            labels = labels.to(device)
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += len(labels)
-            correct += (predicted == labels).sum().item()
-    return correct / total
+    def validate(valloader, device):
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data in valloader:
+                images, labels = data
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += len(labels)
+                correct += (predicted == labels).sum().item()
+        return correct / total
 
 if __name__ == "__main__":
     main()
