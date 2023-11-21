@@ -20,7 +20,7 @@ def main():
     resolution = (400,600)
     # get the data set
     train_data_dir = 'data/CAER-S/train'
-    val_data_dir = 'data/CAER-S/valid'
+    val_data_dir = 'data/CAER-S/test'
 
     train_dataset = CAERSRDataset(train_data_dir, resolution)
     val_dataset = CAERSRDataset(val_data_dir, resolution)
