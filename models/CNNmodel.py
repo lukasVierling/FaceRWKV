@@ -33,7 +33,7 @@ class CNNClassifier(nn.Module):
         )
         
         self.fc_layers = nn.Sequential(
-            nn.Linear(512 * 25 * 37, 512),
+            nn.Linear(12 * 18 * 512, 512),
             nn.ReLU(),
             nn.BatchNorm1d(512),
             
