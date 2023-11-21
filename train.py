@@ -57,7 +57,8 @@ def main():
     for epoch in range(num_epochs):
         running_loss = 0.0
         # Use tqdm to create a progress bar for the training batches
-        for i, data in enumerate(tqdm(trainloader, desc=f'Epoch {epoch+1}/{num_epochs}', leave=False)):
+        pbar = tqdm(trainloader, desc=f'Epoch {epoch+1}/{num_epochs}', leave=False)
+        for i, data in enumerate(pbar):
             # get the inputs
             inputs, labels = data
             inputs = inputs.to(device)
@@ -75,11 +76,12 @@ def main():
 
             # print statistics
             running_loss += loss.item()
-            if i % log_n == log_n-1: # print every 2000 mini-batches
+            if i % log_n == log_n-1:
                 print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
+            pbar.set_postfix({'loss': loss.item()})
         # print and log val acc
         val_acc = validate(model, valloader, device)
         print('val acc:', val_acc)
