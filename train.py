@@ -10,6 +10,7 @@ from tqdm import tqdm
 import socket
 import time
 import os
+import argparse
 
 import tensorboardX
 
@@ -17,7 +18,7 @@ from models.FaceRWKV import FaceRWKV, RWKVConfig
 from models.CNNmodel import CNNClassifier
 from Dataset import CAERSRDataset
 
-def main():
+def main(args=None):
     #save path
     save_dir = 'checkpoint'
     hostname = socket.gethostname()
@@ -38,13 +39,15 @@ def main():
     valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
     # get the model
     config = RWKVConfig()
+    if args is not None:
+        config.from_yaml(args.config)
     config.num_classes = train_dataset.get_classes()
     config.ctx_len = int(resolution[0]*resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
     config.resolution = resolution
     config.num_patches = resolution[0]*resolution[1]//(config.patch_size**2) #length of the sequence, necessary to determine positional encoding in model
     #model = FaceRWKV(config)
     model = CNNClassifier(train_dataset.get_classes())
-    CUDA = True
+    CUDA = torch.cuda.is_available()
     if CUDA:
         device = torch.device('cuda:0')
     else:
@@ -131,4 +134,9 @@ def main():
         return correct / total
 
 if __name__ == "__main__":
-    main()
+    #add arg parse for a directory path to yaml
+    parser = argparse.ArgumentParser(description='Train a model')
+    parser.add_argument('--config', type=str, default=None, help='path to config file')
+    args = parser.parse_args()
+
+    main(args)

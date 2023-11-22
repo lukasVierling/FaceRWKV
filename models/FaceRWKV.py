@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import math
+import yaml
 
 from models.RWKV import Block
 
@@ -110,3 +111,10 @@ class RWKVConfig:
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
+    
+    def from_yaml(self, yaml_file):
+        with open(yaml_file, 'r') as f:
+            config_dict = yaml.safe_load(f)
+        for k, v in config_dict.items():
+            setattr(self, k, v)
+
