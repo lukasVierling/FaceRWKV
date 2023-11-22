@@ -90,12 +90,12 @@ def main(args=None):
     
     #save the config in checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
     # Create the directory if it doesn't exist
-    yaml_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
-    os.makedirs(yaml_dir, exist_ok=True)
 
-    with open(os.path.join(yaml_dir, 'config.yaml'), 'w') as f:
+    #checkpoint saving
+    checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    with open(os.path.join(checkpoint_dir, 'config.yaml'), 'w') as f:
         yaml.dump(config_dict, f)
-
 
     # train the model
     for epoch in range(num_epochs):
@@ -137,20 +137,12 @@ def main(args=None):
         writer.add_scalar('val_acc', val_acc, epoch)
         # save model every 5 epochs
         if epoch % 5 == 4:
-            #torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(epoch+1) + '.pth')
-                    # Create the directory if it doesn't exist
-            checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
-            os.makedirs(checkpoint_dir, exist_ok=True)
-
             # Save the model's state dictionary
             checkpoint_path = os.path.join(checkpoint_dir, f'epoch{epoch+1}.pth')
             torch.save(model.state_dict(), checkpoint_path)
 
     print('Finished Training')
     # save last model
-    #torch.save(model.state_dict(), f'checkpoint/run_{socket.gethostname()}_{time.time()}/epoch' + str(num_epochs) + '.pth')
-    checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
-    os.makedirs(checkpoint_dir, exist_ok=True)
 
     # Save the model's state dictionary
     checkpoint_path = os.path.join(checkpoint_dir, f'epoch{num_epochs}.pth')
