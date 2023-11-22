@@ -90,9 +90,12 @@ def main(args=None):
     
     #save the config in checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
     # Create the directory if it doesn't exist
-    checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
-    os.makedirs(checkpoint_dir, exist_ok=True)
-    
+    yaml_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+    os.makedirs(yaml_dir, exist_ok=True)
+
+    with open(os.path.join(yaml_dir, 'config.yaml'), 'w') as f:
+        yaml.dump(config_dict, f)
+
 
     # train the model
     for epoch in range(num_epochs):
