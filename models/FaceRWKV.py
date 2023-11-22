@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import numpy as np
 import math
 import yaml
+import torchvision.models as models
+from models.Preprocessing import LinearSequencing, CNNSequencing
 
 from models.RWKV import Block
 
@@ -22,15 +24,33 @@ class FaceRWKV(nn.Module):
         self.embed_dim = config.n_embd
         self.n_layers = config.n_layer
         self.n_classes = config.n_classes
-        self.num_patches = config.num_patches
+        self.mean = config.mean
+        self.pos_enc = config.pos_enc
+        self.resnet = config.resent
+        self.n_head = config.n_head
+        self.rwkv = config.rwkv
 
         # Linear projection for the patches
         self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
+        if self.resnet:
+            self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
+            self.num_patches = 12*18 #TODO : check if this holds XD
+            config.ctx_len = self.num_patches #reset the context length
+        else:
+            self.sequencing = LinearSequencing(self.patch_size, self.embed_dim)
+            self.num_patches = config.resolution[0]*config.resolution[1]//(config.patch_size**2)
+            config.ctx_len = self.num_patches #reset the context length
+
         # Learned positional embedding
         self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches, self.embed_dim))
 
         # RWKV Blocks
-        self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
+        if self.rwkv:
+            self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
+        else:
+            #use transformer blocks
+            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=self.n_head), num_layers=self.n_layers)
+        
         # MLP Head
         self.mlp_head = nn.Sequential(
             nn.Linear(self.embed_dim, self.embed_dim),
@@ -51,42 +71,21 @@ class FaceRWKV(nn.Module):
         """
         # x.shape = (batch_size, 3, H, W)
         # Reshape to patches
-        x = image_to_patches(x, self.patch_size)
-        # Flatten for linear layer
-        x = x.flatten(2)
-        x = self.linear_projection(x)
-        x = x + self.pos_embedding
+        x = self.sequencing(x)
+        if self.pos_enc:
+            x = x + self.pos_embedding    
         # x.shape = (batch_size, 14*14, embed_dim)
         x = self.blocks(x)
         # Extract last hidden state
         # x.shape = (batch_size, n_patches, embed_dim) -> (batch_size, embed_dim)
         #x = x[:, -1, :]
-        x = torch.mean(x, dim=1)
+        if self.mean:
+            x = torch.mean(x, dim=1)
+        else: 
+            x = x[:, -1, :]
         # x.shape = (batch_size, n_classes)
         x = self.mlp_head(x)
         return x
-
-def image_to_patches(input_image, patch_size):
-    """
-    Convert input images into patches of defined size.
-
-    Args:
-    - input_image: Input image tensor, shape (batch_size, C, H, W).
-    - patch_size: Size of patches to extract.
-
-    Returns:
-    - Patches reshaped, shape (batch_size, C, n_patches, patch_size, patch_size).
-
-    """
-    N, C, H, W = input_image.shape
-    P = patch_size
-    assert H % P == 0 and W % P == 0, "Image dimensions should be divisible by patch size."
-
-    patches = input_image.unfold(2, P, P).unfold(3, P, P)
-    patches = patches.contiguous().view(N, C, -1, P, P)
-    patches = patches.permute(0, 2, 1, 3, 4).contiguous()
-
-    return patches
 
 class RWKVConfig:
     def __init__(self):
@@ -104,10 +103,11 @@ class RWKVConfig:
         self.patch_size = 20        # Size of patches to be extracted from input images
         self.n_classes = 7          # Number of output classes
         self.resolution = (600,400)
-        self.num_patches = self.resolution[0]*self.resolution[1]//(self.patch_size**2) #should be calculated manually
-
+        self.mean = False           # will calculate mean over sequence if true, else take last hidden state (perfroms better when turned off)
         # Initialization parameters
-        self.scale_init = 0  # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
+        self.scale_init = 0         # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
+        self.pos_enc = True         # Whether to use positional encoding    
+        self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
@@ -115,6 +115,8 @@ class RWKVConfig:
     def from_yaml(self, yaml_file):
         with open(yaml_file, 'r') as f:
             config_dict = yaml.safe_load(f)
-        for k, v in config_dict.items():
+
+        model_config = config_dict.get('model', {})
+        for k, v in model_config.items():
             setattr(self, k, v)
 
