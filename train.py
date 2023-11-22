@@ -17,8 +17,12 @@ import tensorboardX
 from models.FaceRWKV import FaceRWKV, RWKVConfig
 from models.CNNmodel import CNNClassifier
 from Dataset import CAERSRDataset
+from utils import WarmupCosineAnnealingLR
 
 import yaml
+
+import torch.optim as optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 def main(args=None):
     #save path
@@ -38,6 +42,10 @@ def main(args=None):
     val_data_dir = config_dict['training']['val_data_dir']
     batch_size = config_dict['training']['batch_size']
     log_n = config_dict['training']['log_n']
+    num_epochs = config_dict['training']['num_epochs']
+    warmup_epochs = config_dict['training']['warmup_epochs']
+    max_epochs = config_dict['training']['max_epochs']
+    warmup_factor = config_dict['training']['warmup_factor']
 
     # get the model
     config = RWKVConfig()
@@ -70,12 +78,18 @@ def main(args=None):
 
     # get the optimizer
     optimizer = optim.Adam(model.parameters())
+    # Learning rate warmup
+    warmup_epochs = 1
+    max_epochs = 5
+    warmup_factor = 0.1
+    scheduler = WarmupCosineAnnealingLR(optimizer, warmup_epochs, max_epochs, warmup_factor)
+
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
 
     # train the model
-    num_epochs = 30
+
     for epoch in range(num_epochs):
         running_loss = 0.0
         # Use tqdm to create a progress bar for the training batches
@@ -87,6 +101,10 @@ def main(args=None):
             labels = labels.to(device)
 
             # zero the parameter gradients
+            # Gradient clipping
+            max_norm = 1.0
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+
             optimizer.zero_grad()
 
             # forward + backward + optimize
@@ -95,6 +113,7 @@ def main(args=None):
 
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             # print statistics
             running_loss += loss.item()
