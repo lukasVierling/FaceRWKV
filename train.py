@@ -25,6 +25,22 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 def main(args=None):
+    #validate function
+    def validate(valloader, device):
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for data in valloader:
+                images, labels = data
+                images = images.to(device)
+                labels = labels.to(device)
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += len(labels)
+                correct += (predicted == labels).sum().item()
+        return correct / total
+    
     #save path
     save_dir = 'checkpoint'
     hostname = socket.gethostname()
@@ -46,6 +62,7 @@ def main(args=None):
     warmup_epochs = config_dict['training']['warmup_epochs']
     max_epochs = config_dict['training']['max_epochs']
     warmup_factor = config_dict['training']['warmup_factor']
+    batch_size_val = config_dict['training']['batch_size_val']
 
     # get the model
     config = RWKVConfig()
@@ -59,7 +76,7 @@ def main(args=None):
     val_dataset = CAERSRDataset(val_data_dir, config.resolution)
 
     trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-    valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+    valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size_val, shuffle=False, num_workers=2)
 
     #get classes
     config.num_classes = train_dataset.get_classes()
@@ -132,7 +149,8 @@ def main(args=None):
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
             pbar.set_postfix({'loss': loss.item()})
         # print and log val acc
-        val_acc = validate(model, valloader, device)
+        val_acc = validate(valloader, device)
+        model.train()
         print('val acc:', val_acc)
         writer.add_scalar('val_acc', val_acc, epoch)
         # save model every 5 epochs
@@ -148,19 +166,6 @@ def main(args=None):
     checkpoint_path = os.path.join(checkpoint_dir, f'epoch{num_epochs}.pth')
     torch.save(model.state_dict(), checkpoint_path)
 
-    def validate(valloader, device):
-        correct = 0
-        total = 0
-        with torch.no_grad():
-            for data in valloader:
-                images, labels = data
-                images = images.to(device)
-                labels = labels.to(device)
-                outputs = model(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += len(labels)
-                correct += (predicted == labels).sum().item()
-        return correct / total
 
 if __name__ == "__main__":
     #add arg parse for a directory path to yaml
