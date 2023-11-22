@@ -1,14 +1,23 @@
-n_embd: 256
-n_attn: 4
-n_head: 4
-ctx_len: 256
-rwkv_emb_scale: 1.0
-rwkv_tiny_attn: 64
-rwkv_tiny_head: 2
-n_ffn: 512
-n_layer: 4
-patch_size: 20
-n_classes: 7
-resolution: [600, 400]
-num_patches: 750
-scale_init: 0
+model:
+  n_embd: 256
+  n_attn: 4
+  n_head: 4
+  ctx_len: 256
+  rwkv_emb_scale: 1.0
+  rwkv_tiny_attn: 64
+  rwkv_tiny_head: 2
+  n_ffn: 512
+  n_layer: 4
+  patch_size: 20
+  n_classes: 7
+  resolution: [600, 400]
+  scale_init: 0
+  mean : False
+  pos_enc : True
+  rwkv : True 
+  resnet : True
+training:
+  batch_size : 64
+  log_n : 50
+  train_data_dir : 'data/CAER-S/train'
+  val_data_dir : 'data/CAER-S/test'
