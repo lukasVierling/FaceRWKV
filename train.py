@@ -18,6 +18,8 @@ from models.FaceRWKV import FaceRWKV, RWKVConfig
 from models.CNNmodel import CNNClassifier
 from Dataset import CAERSRDataset
 
+import yaml
+
 def main(args=None):
     #save path
     save_dir = 'checkpoint'
@@ -25,26 +27,34 @@ def main(args=None):
     current_time = str(time.time())
 
     print("cuda avail:", torch.cuda.is_available())
-    batch_size = 64
-    log_n = 500
-    resolution = (400,600)
     # get the data set
-    train_data_dir = 'data/CAER-S/train'
-    val_data_dir = 'data/CAER-S/test'
 
-    train_dataset = CAERSRDataset(train_data_dir, resolution)
-    val_dataset = CAERSRDataset(val_data_dir, resolution)
+    #load the config
+    with open(args.config, 'r') as f:
+        config_dict = yaml.safe_load(f)
 
-    trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
-    valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+    #load parameters relevant for training
+    train_data_dir = config_dict['training']['train_data_dir']
+    val_data_dir = config_dict['training']['val_data_dir']
+    batch_size = config_dict['training']['batch_size']
+    log_n = config_dict['training']['log_n']
+
     # get the model
     config = RWKVConfig()
     if args is not None:
         config.from_yaml(args.config)
+    # Safety first
+    config.ctx_len = int(config.resolution[0]*config.resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
+     #length of the sequence, necessary to determine positional encoding in model
+
+    train_dataset = CAERSRDataset(train_data_dir, config.resolution)
+    val_dataset = CAERSRDataset(val_data_dir, config.resolution)
+
+    trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
+    valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
+
+    #get classes
     config.num_classes = train_dataset.get_classes()
-    config.ctx_len = int(resolution[0]*resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
-    config.resolution = resolution
-    config.num_patches = resolution[0]*resolution[1]//(config.patch_size**2) #length of the sequence, necessary to determine positional encoding in model
     #model = FaceRWKV(config)
     model = CNNClassifier(train_dataset.get_classes())
     CUDA = torch.cuda.is_available()
