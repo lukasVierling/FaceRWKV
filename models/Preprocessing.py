@@ -48,6 +48,9 @@ class CNNSequencing(nn.Module):
         self.resnet = models.resnet50(pretrained=True)
         # Remove the layers after stage 4
         self.resnet = torch.nn.Sequential(*list(self.resnet.children())[:6])
+        for param in self.resnet.parameters():
+            param.requires_grad = False
+            
         self.lin = torch.nn.Linear(2048, embed_dim)
         self.layer_norm = nn.LayerNorm(embed_dim)
 
