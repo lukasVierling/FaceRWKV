@@ -22,7 +22,7 @@ training:
   train_data_dir : 'data/CAER-S/train'
   val_data_dir : 'data/CAER-S/test'
   num_epochs : 5
-  warm_up_epochs : 1
+  warmup_epochs : 1
   max_epochs : 5
   warmup_factor : 0.1
   

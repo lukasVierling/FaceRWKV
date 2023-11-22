@@ -87,9 +87,14 @@ def main(args=None):
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
+    
+    #save the config in checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+    # Create the directory if it doesn't exist
+    checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    
 
     # train the model
-
     for epoch in range(num_epochs):
         running_loss = 0.0
         # Use tqdm to create a progress bar for the training batches
