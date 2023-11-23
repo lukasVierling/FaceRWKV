@@ -15,7 +15,7 @@ class LinearSequencing(nn.Module):
         x = self.image_to_patches(x)
         # Flatten for linear layer
         x = x.flatten(2)
-        x = self.linear_projection(x)
+        x = self.linear(x)
         x = self.layer_norm(x)
         return x
     
