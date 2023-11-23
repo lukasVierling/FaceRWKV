@@ -4,4 +4,3 @@ data/
 __pycache__/
 #don't push checkpoints
 checkpoint/
-config/
