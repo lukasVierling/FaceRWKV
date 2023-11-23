@@ -47,7 +47,7 @@ class CNNSequencing(nn.Module):
         # load a pretrained resnet and up to stage 3
         self.resnet = models.resnet50(pretrained=True)
         # Remove the layers after stage 4
-        self.resnet = torch.nn.Sequential(*list(self.resnet.children())[:6])
+        self.resnet = torch.nn.Sequential(*list(self.resnet.children())[:8])
         for param in self.resnet.parameters():
             param.requires_grad = False
             
