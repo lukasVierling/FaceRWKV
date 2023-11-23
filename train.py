@@ -11,6 +11,7 @@ import socket
 import time
 import os
 import argparse
+from torchsummary import summary
 
 import tensorboardX
 
@@ -104,6 +105,8 @@ def main(args=None):
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
+    # Get model summary
+    summary(model, (3, config.resolution[0], config.resolution[1]))
     
     #save the config in checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
     # Create the directory if it doesn't exist
