@@ -11,8 +11,7 @@ import socket
 import time
 import os
 import argparse
-from torchsummary import summary
-
+from torchinfo import summary
 import tensorboardX
 
 from models.FaceRWKV import FaceRWKV, RWKVConfig
@@ -81,8 +80,8 @@ def main(args=None):
 
     #get classes
     config.num_classes = train_dataset.get_classes()
-    #model = FaceRWKV(config)
-    model = CNNClassifier(train_dataset.get_classes())
+    model = FaceRWKV(config)
+    #model = CNNClassifier(train_dataset.get_classes())
     CUDA = torch.cuda.is_available()
     if CUDA:
         device = torch.device('cuda:0')
@@ -106,7 +105,9 @@ def main(args=None):
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
     # Get model summary
-    summary(model, (3, config.resolution[0], config.resolution[1]))
+    #summary(model, (1, 3, config.resolution[0], config.resolution[1]))
+    print("Trainable parameters in the model:", sum(p.numel() for p in model.parameters() if p.requires_grad))
+    print("All parameters in the model:", sum(p.numel() for p in model.parameters()))
     
     #save the config in checkpoint_dir = f'checkpoint/run_{socket.gethostname()}_{time.time()}'
     # Create the directory if it doesn't exist

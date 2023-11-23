@@ -26,12 +26,10 @@ class FaceRWKV(nn.Module):
         self.n_classes = config.n_classes
         self.mean = config.mean
         self.pos_enc = config.pos_enc
-        self.resnet = config.resent
+        self.resnet = config.resnet
         self.n_head = config.n_head
         self.rwkv = config.rwkv
 
-        # Linear projection for the patches
-        self.linear_projection = nn.Linear(self.patch_size**2 * 3, self.embed_dim)
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
             self.num_patches = 12*18 #TODO : check if this holds XD
@@ -108,6 +106,7 @@ class RWKVConfig:
         self.scale_init = 0         # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
         self.pos_enc = True         # Whether to use positional encoding    
         self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
+        self.resnet = False
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))

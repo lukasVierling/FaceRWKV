@@ -1,13 +1,13 @@
 model:
-  n_embd: 256
-  n_attn: 4
-  n_head: 4
-  ctx_len: 256
+  n_embd: 512
+  n_attn: 8
+  n_head: 8
+  ctx_len: 512
   rwkv_emb_scale: 1.0
   rwkv_tiny_attn: 64
   rwkv_tiny_head: 2
-  n_ffn: 512
-  n_layer: 4
+  n_ffn: 1024
+  n_layer: 8
   patch_size: 20
   n_classes: 7
   resolution: [600, 400]
