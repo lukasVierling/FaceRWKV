@@ -1,19 +1,19 @@
 model:
-  n_embd: 128
-  n_attn: 2
-  n_head: 2
+  n_embd: 256
+  n_attn: 4
+  n_head: 4
   ctx_len: 512
   rwkv_emb_scale: 1.0
   rwkv_tiny_attn: 64
   rwkv_tiny_head: 2
-  n_ffn: 128
-  n_layer: 2
+  n_ffn: 256
+  n_layer: 4
   patch_size: 20
   n_classes: 7
   resolution: [600, 400]
   scale_init: 0
   mean : False
-  pos_enc : False
+  pos_enc : True
   rwkv : True 
   resnet : False
 training:
@@ -26,4 +26,4 @@ training:
   max_epochs : 5
   warmup_factor : 0.1
   batch_size_val : 64
-  #This is part of experiment 1 small model
+  # Part of ablation study, figure out what pos encoding effect is

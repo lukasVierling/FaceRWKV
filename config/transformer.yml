@@ -1,29 +1,29 @@
 model:
-  n_embd: 128
-  n_attn: 2
-  n_head: 2
+  n_embd: 256
+  n_attn: 4
+  n_head: 4
   ctx_len: 512
   rwkv_emb_scale: 1.0
   rwkv_tiny_attn: 64
   rwkv_tiny_head: 2
-  n_ffn: 128
-  n_layer: 2
+  n_ffn: 256
+  n_layer: 4
   patch_size: 20
   n_classes: 7
   resolution: [600, 400]
   scale_init: 0
   mean : False
-  pos_enc : False
-  rwkv : True 
+  pos_enc : True
+  rwkv : False 
   resnet : False
 training:
   batch_size : 64
   log_n : 50
   train_data_dir : 'data/CAER-S/train'
   val_data_dir : 'data/CAER-S/test'
-  num_epochs : 15
-  warmup_epochs : 1
-  max_epochs : 5
+  num_epochs : 25
+  warmup_epochs : 3
+  max_epochs : 25
   warmup_factor : 0.1
   batch_size_val : 64
-  #This is part of experiment 1 small model
+  #This config is part of part 2 experiement: rwkv vs transromer vs hybrid rwkv

@@ -25,5 +25,6 @@ training:
   warmup_epochs : 1
   max_epochs : 5
   warmup_factor : 0.1
-  batch_size_val : 2048
+  batch_size_val : 64
+  #Default config not necessary
   

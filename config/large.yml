@@ -26,3 +26,4 @@ training:
   max_epochs : 5
   warmup_factor : 0.1
   batch_size_val : 64
+  #Failed experiment too large to train

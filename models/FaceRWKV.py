@@ -29,6 +29,7 @@ class FaceRWKV(nn.Module):
         self.resnet = config.resnet
         self.n_head = config.n_head
         self.rwkv = config.rwkv
+        self.n_ffn = config.n_ffn
 
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
@@ -47,7 +48,7 @@ class FaceRWKV(nn.Module):
             self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
         else:
             #use transformer blocks
-            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=self.n_head), num_layers=self.n_layers)
+            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=self.n_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
         
         # MLP Head
         self.mlp_head = nn.Sequential(
