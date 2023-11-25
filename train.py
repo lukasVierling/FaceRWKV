@@ -62,6 +62,7 @@ def main(args=None):
     #load parameters relevant for training
     train_data_dir = config_dict['training']['train_data_dir']
     val_data_dir = config_dict['training']['val_data_dir']
+    test_data_dir = config_dict['training']['test_data_dir']
     batch_size = config_dict['training']['batch_size']
     log_n = config_dict['training']['log_n']
     num_epochs = config_dict['training']['num_epochs']
@@ -81,9 +82,11 @@ def main(args=None):
 
     train_dataset = CAERSRDataset(train_data_dir, config.resolution)
     val_dataset = CAERSRDataset(val_data_dir, config.resolution)
+    test_dataset = CAERSRDataset(test_data_dir, config.resolution)
 
     trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size_val, shuffle=False, num_workers=2)
+    testloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size_val, shuffle=False, num_workers=2)
 
     #get classes
     config.num_classes = train_dataset.get_classes()
@@ -171,6 +174,9 @@ def main(args=None):
 
     print('Finished Training')
     # save last model
+    #eval on test set
+    test_acc = validate(testloader, device)
+    print('test acc:', test_acc)
 
     # Save the model's state dictionary
     checkpoint_path = os.path.join(checkpoint_dir, f'epoch{num_epochs}.pth')
