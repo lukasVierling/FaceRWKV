@@ -31,26 +31,21 @@ def main(args=None):
         correct = 0
         total = 0
         with torch.no_grad():
-            #measure time
-            sart = time.time()
             for data in valloader:
-                #measure time fore very step
-                unpack_time = time.time()
                 images, labels = data
                 images = images.to(device)
                 labels = labels.to(device)
-                print("unpack time:", time.time()-unpack_time)
-                forward_time = time.time()
+                
+                batch_size = labels.size(0)  # Get the batch size
+                
                 outputs = model(images)
-                print("forward time:", time.time()-forward_time)
-                calc_time = time.time()
                 _, predicted = torch.max(outputs.data, 1)
-                total += len(labels)
+                
                 correct += (predicted == labels).sum().item()
-                print("calc time:", time.time()-calc_time)
-            end = time.time()
-            print("time for val:", end-start)
-        return correct / total
+                total += batch_size
+
+        accuracy = correct / total
+        return accuracy
     
     #save path
     save_dir = 'checkpoint'
