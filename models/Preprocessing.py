@@ -47,11 +47,11 @@ class CNNSequencing(nn.Module):
         # load a pretrained resnet and up to stage 3
         self.resnet = models.resnet50(pretrained=True)
         # Remove the layers after stage 4
-        self.resnet = torch.nn.Sequential(*list(self.resnet.children())[:8])
+        self.resnet = torch.nn.Sequential(*list(self.resnet.children())[:4])
         for param in self.resnet.parameters():
             param.requires_grad = False
             
-        self.lin = torch.nn.Linear(2048, embed_dim)
+        self.conv = nn.Conv2d(64, embed_dim, kernel_size=5)
         self.layer_norm = nn.LayerNorm(embed_dim)
 
         self.patch_size = patch_size
@@ -59,11 +59,10 @@ class CNNSequencing(nn.Module):
 
     def forward(self, x):
         x = self.resnet(x)
+        x = self.conv(x)
         #output shape is: [batch_size, 2048, 12, 18]
-        print(x.shape)
         N, C, H, W = x.size()
         x = x.view(N, C, -1).permute(0, 2, 1)
-        x = self.lin(x)
         x = self.layer_norm(x)
         return x
 
