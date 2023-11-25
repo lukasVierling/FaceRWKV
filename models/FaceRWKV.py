@@ -121,7 +121,8 @@ class RWKVConfig:
         self.scale_init = 0         # Scale for weight initialization in RWKV_TimeMix and RWKV_ChannelMix
         self.pos_enc = True         # Whether to use positional encoding    
         self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
-        self.resnet = False
+        self.block = "rwkv"         # Which block to use, options are "rwkv", "transformer", "identity"
+        self.mlp_head = True        # Whether to use an mlp head or a linear head
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
