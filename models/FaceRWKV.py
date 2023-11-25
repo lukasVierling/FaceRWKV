@@ -26,10 +26,10 @@ class FaceRWKV(nn.Module):
         self.n_classes = config.n_classes
         self.mean = config.mean
         self.pos_enc = config.pos_enc
-        self.resnet = config.resnet
         self.n_ffn = config.n_ffn
         self.mlp_head = config.mlp_head
         self.block = config.block
+        self.resnet = config.resnet
 
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
@@ -121,7 +121,8 @@ class RWKVConfig:
         self.pos_enc = True         # Whether to use positional encoding    
         self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
         self.block = "rwkv"         # Which block to use, options are "rwkv", "transformer", "identity"
-        self.mlp_head = True        # Whether to use an mlp mlp_head or a linear mlp_head
+        self.mlp_head = False        # Whether to use an mlp mlp_head or a linear mlp_head
+        self.resnet = False
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
