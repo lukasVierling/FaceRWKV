@@ -14,8 +14,8 @@ model:
   scale_init: 0
   mean : False
   pos_enc : False
-  block : "rwkv" 
-  resnet : False
+  block : "identity" 
+  resnet : True
   mlp_head: True
 training:
   batch_size : 64
@@ -23,9 +23,10 @@ training:
   train_data_dir : 'data/CAER-S/train'
   val_data_dir : 'data/CAER-S/valid'
   test_data_dir : 'data/CAER-S/test'
-  num_epochs : 25
+  num_epochs : 15
   warmup_epochs : 1
-  max_epochs : 25
+  max_epochs : 15
   warmup_factor : 0.1
   batch_size_val : 64
+  lr : 0.001
   #This is part of experiment 1 small model
