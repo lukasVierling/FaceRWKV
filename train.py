@@ -151,17 +151,18 @@ def main(args=None):
             # print statistics
             running_loss += loss.item()
             if i % log_n == log_n-1:
-                print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
+                #print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
                 #tensorboard logging
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
             pbar.set_postfix({'loss': loss.item()})
         # print and log val acc
-        val_acc = validate(valloader, device)
-        model.train()
-        print('val acc:', val_acc)
-        writer.add_scalar('val_acc', val_acc, epoch)
-        # save model every 5 epochs
+        if epoch >= num_epochs-5:
+            val_acc = validate(valloader, device)
+            model.train()
+            print('val acc:', val_acc)
+            writer.add_scalar('val_acc', val_acc, epoch)
+            # save model every 5 epochs
         if epoch % 5 == 4:
             # Save the model's state dictionary
             checkpoint_path = os.path.join(checkpoint_dir, f'epoch{epoch+1}.pth')
