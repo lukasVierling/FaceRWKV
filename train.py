@@ -44,7 +44,9 @@ def main(args=None):
                 print("labels device:", labels.device)
                 print("outputs device:", outputs.device)
                 print("predicted device:", predicted.device)
-                print("model  device: ", model.device)
+                #iterate over params and print device
+                for param in model.parameters():
+                    print("param:", param.device)
                 print("correct:", correct.device)
                 print("total:", total.device)
         return correct / total
