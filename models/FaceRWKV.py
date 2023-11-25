@@ -27,9 +27,8 @@ class FaceRWKV(nn.Module):
         self.mean = config.mean
         self.pos_enc = config.pos_enc
         self.resnet = config.resnet
-        self.n_mlp_head = config.n_mlp_head
         self.n_ffn = config.n_ffn
-        self.mlp_mlp_head_bool = config.mlp_mlp_head
+        self.mlp_head = config.mlp_head
         self.block = config.block
 
         if self.resnet:
@@ -55,20 +54,20 @@ class FaceRWKV(nn.Module):
             self.blocks = nn.Flatten()
 
         # MLP mlp_Head
-        if self.mlp_mlp_head_bool:
+        if self.mlp_head:
             # if we operate directly on the resnet feature map, we have to use a different input size for the mlp
             if self.blocks == "identity":
                 embed_dim_1 = 13*19*512
             else:
                 embed_dim_1 = self.embed_dim
 
-            self.mlp_head = nn.Sequential(
+            self.head = nn.Sequential(
                 nn.Linear(embed_dim_1, self.embed_dim),
                 nn.ReLU(),
                 nn.Linear(self.embed_dim, self.n_classes)
             )
         else:
-            self.mlp_head = nn.Linear(self.embed_dim, self.n_classes)
+            self.head = nn.Linear(self.embed_dim, self.n_classes)
 
 
     def forward(self, x):
@@ -97,7 +96,7 @@ class FaceRWKV(nn.Module):
         else: 
             x = x[:, -1, :]
         # x.shape = (batch_size, n_classes)
-        x = self.mlp_head(x)
+        x = self.head(x)
         return x
 
 class RWKVConfig:
@@ -122,7 +121,7 @@ class RWKVConfig:
         self.pos_enc = True         # Whether to use positional encoding    
         self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
         self.block = "rwkv"         # Which block to use, options are "rwkv", "transformer", "identity"
-        self.mlp_mlp_head = True        # Whether to use an mlp mlp_head or a linear mlp_head
+        self.mlp_head = True        # Whether to use an mlp mlp_head or a linear mlp_head
 
     def calculate_decay_speed(self, h):
         return math.pow(self.ctx_len, -(h + 1) / (self.n_mlp_head - 1))
