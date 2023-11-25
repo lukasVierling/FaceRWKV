@@ -28,9 +28,9 @@ class FaceRWKV(nn.Module):
         self.pos_enc = config.pos_enc
         self.resnet = config.resnet
         self.n_head = config.n_head
-        self.rwkv = config.rwkv
         self.n_ffn = config.n_ffn
         self.mlp_head = config.mlp_head
+        self.block = config.block
 
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
