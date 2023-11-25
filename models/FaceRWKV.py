@@ -48,7 +48,7 @@ class FaceRWKV(nn.Module):
             self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
         elif self.block == "transformer":
             #use transformer blocks
-            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nmlp_head=self.n_mlp_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
+            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=config.n_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
         elif self.block == "identity":
             # flatten the resnet output for the mlp mlp_head
             self.blocks = nn.Flatten()
@@ -57,7 +57,7 @@ class FaceRWKV(nn.Module):
         if self.mlp_head:
             # if we operate directly on the resnet feature map, we have to use a different input size for the mlp
             if self.blocks == "identity":
-                embed_dim_1 = 13*19*512
+                embed_dim_1 = 13*19*512 #TODO Change this for 
             else:
                 embed_dim_1 = self.embed_dim
 
@@ -104,12 +104,12 @@ class RWKVConfig:
         # Model architecture parameters
         self.n_embd = 256           # Embedding size
         self.n_attn = 4             # Number of attention mlp_heads
-        self.n_mlp_head = 4             # Number of mlp_heads for RWKV_TinyAttn
+        self.n_head = 4             # Number of mlp_heads for RWKV_TinyAttn
         self.ctx_len = 256          # Context length -> apparently crashes for too short context????
         #self.vocab_size = 50000    # Vocabulary size
         self.rwkv_emb_scale = 1.0   # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
         self.rwkv_tiny_attn = 64    # Tiny attention size for RWKV_TinyAttn
-        self.rwkv_tiny_mlp_head = 2     # Number of tiny attention mlp_heads for RWKV_TinyAttn
+        self.rwkv_tiny_head = 2     # Number of tiny attention mlp_heads for RWKV_TinyAttn
         self.n_ffn = 512            # Hidden size for RWKV_ChannelMix
         self.n_layer = 4            # Number of RWKV blocks
         self.patch_size = 20        # Size of patches to be extracted from input images
@@ -124,7 +124,7 @@ class RWKVConfig:
         self.mlp_head = True        # Whether to use an mlp mlp_head or a linear mlp_head
 
     def calculate_decay_speed(self, h):
-        return math.pow(self.ctx_len, -(h + 1) / (self.n_mlp_head - 1))
+        return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
     
     def from_yaml(self, yaml_file):
         with open(yaml_file, 'r') as f:
