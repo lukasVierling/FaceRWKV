@@ -33,7 +33,7 @@ class FaceRWKV(nn.Module):
 
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
-            self.num_patches = 13*19 #TODO : check if this holds XD
+            self.num_patches = 20*30 #TODO : check if this holds XD
             config.ctx_len = self.num_patches #reset the context length
         else:
             self.sequencing = LinearSequencing(self.patch_size, self.embed_dim)
