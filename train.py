@@ -39,6 +39,14 @@ def main(args=None):
                 _, predicted = torch.max(outputs.data, 1)
                 total += len(labels)
                 correct += (predicted == labels).sum().item()
+                #print device of every variable
+                print("images device:", images.device)
+                print("labels device:", labels.device)
+                print("outputs device:", outputs.device)
+                print("predicted device:", predicted.device)
+                print("model  device: ", model.device)
+                print("correct:", correct.device)
+                print("total:", total.device)
         return correct / total
     
     #save path
@@ -117,6 +125,12 @@ def main(args=None):
     os.makedirs(checkpoint_dir, exist_ok=True)
     with open(os.path.join(checkpoint_dir, 'config.yaml'), 'w') as f:
         yaml.dump(config_dict, f)
+    #test val function
+    #measure time
+    start = time.time()
+    val_acc = validate(valloader, device)
+    end = time.time()
+    print("time for val:", end-start)
 
     # train the model
     for epoch in range(num_epochs):
