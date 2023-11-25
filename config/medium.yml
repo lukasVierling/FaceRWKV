@@ -20,7 +20,7 @@ training:
   batch_size : 64
   log_n : 50
   train_data_dir : 'data/CAER-S/train'
-  val_data_dir : 'data/CAER-S/test'
+  val_data_dir : 'data/CAER-S/valid'
   num_epochs : 25
   warmup_epochs : 1
   max_epochs : 25
