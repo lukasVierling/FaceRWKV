@@ -39,10 +39,12 @@ def main(args=None):
                 batch_size = labels.size(0)  # Get the batch size
                 
                 outputs = model(images)
+                start = time.time()
                 _, predicted = torch.max(outputs.data, 1)
                 
                 correct += (predicted == labels).sum().item()
                 total += batch_size
+                print("time for batch:", time.time()-start)
 
         accuracy = correct / total
         return accuracy
