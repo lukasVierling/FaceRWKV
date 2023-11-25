@@ -69,6 +69,7 @@ def main(args=None):
     max_epochs = config_dict['training']['max_epochs']
     warmup_factor = config_dict['training']['warmup_factor']
     batch_size_val = config_dict['training']['batch_size_val']
+    lr = config_dict['training']['lr']
 
     # get the model
     config = RWKVConfig()
@@ -100,7 +101,7 @@ def main(args=None):
     criterion = criterion.to(device)
 
     # get the optimizer
-    optimizer = optim.Adam(model.parameters())
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     # Learning rate warmup
     scheduler = WarmupCosineAnnealingLR(optimizer, warmup_epochs, max_epochs, warmup_factor)
 

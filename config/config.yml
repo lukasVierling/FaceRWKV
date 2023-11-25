@@ -26,5 +26,6 @@ training:
   max_epochs : 5
   warmup_factor : 0.1
   batch_size_val : 64
+  lr : 0.0008 # default adam is 0.00000001
   #Default config not necessary
   

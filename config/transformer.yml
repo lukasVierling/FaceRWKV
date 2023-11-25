@@ -26,5 +26,6 @@ training:
   max_epochs : 20
   warmup_factor : 0.1
   batch_size_val : 32
+  lr : 0.0008
   #Failed experiment too large to train
   #This config is part of part 2 experiement: rwkv vs transromer vs hybrid rwkv
