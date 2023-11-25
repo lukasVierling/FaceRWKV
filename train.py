@@ -102,9 +102,6 @@ def main(args=None):
     # get the optimizer
     optimizer = optim.Adam(model.parameters())
     # Learning rate warmup
-    warmup_epochs = 1
-    max_epochs = 5
-    warmup_factor = 0.1
     scheduler = WarmupCosineAnnealingLR(optimizer, warmup_epochs, max_epochs, warmup_factor)
 
 
