@@ -31,24 +31,25 @@ def main(args=None):
         correct = 0
         total = 0
         with torch.no_grad():
+            #measure time
+            sart = time()
             for data in valloader:
+                #measure time fore very step
+                unpack_time = time()
                 images, labels = data
                 images = images.to(device)
                 labels = labels.to(device)
+                print("unpack time:", time()-unpack_time)
+                forward_time = time()
                 outputs = model(images)
+                print("forward time:", time()-forward_time)
+                calc_time = time()
                 _, predicted = torch.max(outputs.data, 1)
                 total += len(labels)
                 correct += (predicted == labels).sum().item()
-                #print device of every variable
-                print("images device:", images.device)
-                print("labels device:", labels.device)
-                print("outputs device:", outputs.device)
-                print("predicted device:", predicted.device)
-                #iterate over params and print device
-                for param in model.parameters():
-                    print("param:", param.device)
-                print("correct:", correct.device)
-                print("total:", total.device)
+                print("calc time:", time()-calc_time)
+            end = time()
+            print("time for val:", end-start)
         return correct / total
     
     #save path
