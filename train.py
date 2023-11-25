@@ -32,23 +32,23 @@ def main(args=None):
         total = 0
         with torch.no_grad():
             #measure time
-            sart = time()
+            sart = time.time()
             for data in valloader:
                 #measure time fore very step
-                unpack_time = time()
+                unpack_time = time.time()
                 images, labels = data
                 images = images.to(device)
                 labels = labels.to(device)
-                print("unpack time:", time()-unpack_time)
-                forward_time = time()
+                print("unpack time:", time.time()-unpack_time)
+                forward_time = time.time()
                 outputs = model(images)
-                print("forward time:", time()-forward_time)
-                calc_time = time()
+                print("forward time:", time.time()-forward_time)
+                calc_time = time.time()
                 _, predicted = torch.max(outputs.data, 1)
                 total += len(labels)
                 correct += (predicted == labels).sum().item()
-                print("calc time:", time()-calc_time)
-            end = time()
+                print("calc time:", time.time()-calc_time)
+            end = time.time()
             print("time for val:", end-start)
         return correct / total
     
