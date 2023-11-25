@@ -39,12 +39,10 @@ def main(args=None):
                 batch_size = labels.size(0)  # Get the batch size
                 
                 outputs = model(images)
-                start = time.time()
                 _, predicted = torch.max(outputs.data, 1)
                 
                 correct += (predicted == labels).sum().item()
                 total += batch_size
-                print("time for batch:", time.time()-start)
 
         accuracy = correct / total
         return accuracy
@@ -104,9 +102,6 @@ def main(args=None):
     # get the optimizer
     optimizer = optim.Adam(model.parameters())
     # Learning rate warmup
-    warmup_epochs = 1
-    max_epochs = 5
-    warmup_factor = 0.1
     scheduler = WarmupCosineAnnealingLR(optimizer, warmup_epochs, max_epochs, warmup_factor)
 
 
@@ -126,11 +121,6 @@ def main(args=None):
     with open(os.path.join(checkpoint_dir, 'config.yaml'), 'w') as f:
         yaml.dump(config_dict, f)
     #test val function
-    #measure time
-    start = time.time()
-    val_acc = validate(valloader, device)
-    end = time.time()
-    print("time for val:", end-start)
 
     # train the model
     for epoch in range(num_epochs):
