@@ -71,7 +71,7 @@ def main(args=None):
     warmup_factor = config_dict['training']['warmup_factor']
     batch_size_val = config_dict['training']['batch_size_val']
     lr = config_dict['training']['lr']
-    
+
     # get the model
     config = RWKVConfig()
     if args is not None:
@@ -161,12 +161,11 @@ def main(args=None):
                 writer.add_scalar('loss', loss.item(), epoch*len(trainloader)+i)
             pbar.set_postfix({'loss': loss.item()})
         # print and log val acc
-        if epoch >= num_epochs-5:
-            val_acc = validate(valloader, device)
-            model.train()
-            print('val acc:', val_acc)
-            writer.add_scalar('val_acc', val_acc, epoch)
-            # save model every 5 epochs
+        val_acc = validate(valloader, device)
+        model.train()
+        print('val acc:', val_acc)
+        writer.add_scalar('val_acc', val_acc, epoch)
+        # save model every 5 epochs
         if epoch % 5 == 4:
             # Save the model's state dictionary
             checkpoint_path = os.path.join(checkpoint_dir, f'epoch{epoch+1}.pth')
