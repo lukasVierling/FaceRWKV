@@ -27,9 +27,9 @@ class FaceRWKV(nn.Module):
         self.mean = config.mean
         self.pos_enc = config.pos_enc
         self.resnet = config.resnet
-        self.n_head = config.n_head
+        self.n_mlp_head = config.n_mlp_head
         self.n_ffn = config.n_ffn
-        self.mlp_head = config.mlp_head
+        self.mlp_mlp_head_bool = config.mlp_mlp_head
         self.block = config.block
 
         if self.resnet:
@@ -49,26 +49,26 @@ class FaceRWKV(nn.Module):
             self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
         elif self.block == "transformer":
             #use transformer blocks
-            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=self.n_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
+            self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nmlp_head=self.n_mlp_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
         elif self.block == "identity":
-            # flatten the resnet output for the mlp head
+            # flatten the resnet output for the mlp mlp_head
             self.blocks = nn.Flatten()
 
-        # MLP Head
-        if self.mlp_head:
+        # MLP mlp_Head
+        if self.mlp_mlp_head_bool:
             # if we operate directly on the resnet feature map, we have to use a different input size for the mlp
             if self.blocks == "identity":
                 embed_dim_1 = 13*19*512
             else:
                 embed_dim_1 = self.embed_dim
 
-            self.head = nn.Sequential(
+            self.mlp_head = nn.Sequential(
                 nn.Linear(embed_dim_1, self.embed_dim),
                 nn.ReLU(),
                 nn.Linear(self.embed_dim, self.n_classes)
             )
         else:
-            self.head = nn.Linear(self.embed_dim, self.n_classes)
+            self.mlp_head = nn.Linear(self.embed_dim, self.n_classes)
 
 
     def forward(self, x):
@@ -97,20 +97,20 @@ class FaceRWKV(nn.Module):
         else: 
             x = x[:, -1, :]
         # x.shape = (batch_size, n_classes)
-        x = self.head(x)
+        x = self.mlp_head(x)
         return x
 
 class RWKVConfig:
     def __init__(self):
         # Model architecture parameters
         self.n_embd = 256           # Embedding size
-        self.n_attn = 4             # Number of attention heads
-        self.n_head = 4             # Number of heads for RWKV_TinyAttn
+        self.n_attn = 4             # Number of attention mlp_heads
+        self.n_mlp_head = 4             # Number of mlp_heads for RWKV_TinyAttn
         self.ctx_len = 256          # Context length -> apparently crashes for too short context????
         #self.vocab_size = 50000    # Vocabulary size
         self.rwkv_emb_scale = 1.0   # Scale for final projection in RWKV_TimeMix and RWKV_ChannelMix
         self.rwkv_tiny_attn = 64    # Tiny attention size for RWKV_TinyAttn
-        self.rwkv_tiny_head = 2     # Number of tiny attention heads for RWKV_TinyAttn
+        self.rwkv_tiny_mlp_head = 2     # Number of tiny attention mlp_heads for RWKV_TinyAttn
         self.n_ffn = 512            # Hidden size for RWKV_ChannelMix
         self.n_layer = 4            # Number of RWKV blocks
         self.patch_size = 20        # Size of patches to be extracted from input images
@@ -122,10 +122,10 @@ class RWKVConfig:
         self.pos_enc = True         # Whether to use positional encoding    
         self.rwkv = True            # When true use rwkv blocks, else use transformer blocks
         self.block = "rwkv"         # Which block to use, options are "rwkv", "transformer", "identity"
-        self.mlp_head = True        # Whether to use an mlp head or a linear head
+        self.mlp_mlp_head = True        # Whether to use an mlp mlp_head or a linear mlp_head
 
     def calculate_decay_speed(self, h):
-        return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
+        return math.pow(self.ctx_len, -(h + 1) / (self.n_mlp_head - 1))
     
     def from_yaml(self, yaml_file):
         with open(yaml_file, 'r') as f:

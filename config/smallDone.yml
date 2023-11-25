@@ -14,8 +14,9 @@ model:
   scale_init: 0
   mean : False
   pos_enc : False
-  rwkv : True 
+  block : "rwkv" 
   resnet : False
+  mlp_head: True
 training:
   batch_size : 64
   log_n : 50
