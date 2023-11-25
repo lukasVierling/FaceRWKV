@@ -30,6 +30,7 @@ class FaceRWKV(nn.Module):
         self.n_head = config.n_head
         self.rwkv = config.rwkv
         self.n_ffn = config.n_ffn
+        self.mlp_head = config.mlp_head
 
         if self.resnet:
             self.sequencing = CNNSequencing(self.patch_size, self.embed_dim)
@@ -44,18 +45,31 @@ class FaceRWKV(nn.Module):
         self.pos_embedding = nn.Parameter(torch.randn(1, self.num_patches, self.embed_dim))
 
         # RWKV Blocks
-        if self.rwkv:
+        if self.block == "rwkv":
             self.blocks = nn.Sequential(*[Block(config, i) for i in range(self.n_layers)])
-        else:
+        elif self.block == "transformer":
             #use transformer blocks
             self.blocks = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=self.embed_dim, nhead=self.n_head, dim_feedforward=self.n_ffn, batch_first=True), num_layers=self.n_layers)
-        
+        elif self.block == "identity":
+            # flatten the resnet output for the mlp head
+            self.blocks = nn.Flatten()
+
         # MLP Head
-        self.mlp_head = nn.Sequential(
-            nn.Linear(self.embed_dim, self.embed_dim),
-            nn.ReLU(),
-            nn.Linear(self.embed_dim, self.n_classes)
-        )
+        if self.mlp_head:
+            # if we operate directly on the resnet feature map, we have to use a different input size for the mlp
+            if self.blocks == "identity":
+                embed_dim_1 = 13*19*512
+            else:
+                embed_dim_1 = self.embed_dim
+
+            self.head = nn.Sequential(
+                nn.Linear(embed_dim_1, self.embed_dim),
+                nn.ReLU(),
+                nn.Linear(self.embed_dim, self.n_classes)
+            )
+        else:
+            self.head = nn.Linear(self.embed_dim, self.n_classes)
+
 
     def forward(self, x):
         """
@@ -83,7 +97,7 @@ class FaceRWKV(nn.Module):
         else: 
             x = x[:, -1, :]
         # x.shape = (batch_size, n_classes)
-        x = self.mlp_head(x)
+        x = self.head(x)
         return x
 
 class RWKVConfig:

@@ -12,9 +12,10 @@ model:
   n_classes: 7
   resolution: [600, 400]
   scale_init: 0
+  mlp_head: True
   mean : False
   pos_enc : True
-  rwkv : True 
+  block : "rwkv"  #former rwkv, can decide between "rwkv", "transformer", "identity"  (set resnet = True if identity selected)
   resnet : True
 training:
   batch_size : 64

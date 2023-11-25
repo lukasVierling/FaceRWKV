@@ -71,7 +71,7 @@ def main(args=None):
     warmup_factor = config_dict['training']['warmup_factor']
     batch_size_val = config_dict['training']['batch_size_val']
     lr = config_dict['training']['lr']
-
+    
     # get the model
     config = RWKVConfig()
     if args is not None:
