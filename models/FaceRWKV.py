@@ -56,7 +56,7 @@ class FaceRWKV(nn.Module):
         # MLP mlp_Head
         if self.mlp_head:
             # if we operate directly on the resnet feature map, we have to use a different input size for the mlp
-            if self.blocks == "identity":
+            if self.block == "identity":
                 embed_dim_1 = 20*30*self.embed_dim #TODO Change this for 
             else:
                 embed_dim_1 = self.embed_dim
