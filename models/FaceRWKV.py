@@ -91,6 +91,9 @@ class FaceRWKV(nn.Module):
         # Extract last hidden state
         # x.shape = (batch_size, n_patches, embed_dim) -> (batch_size, embed_dim)
         #x = x[:, -1, :]
+        if self.block == "identity":
+            # flatten the resnet output for the mlp mlp_head
+            x = x.unsqueeze(1)
         if self.mean:
             x = torch.mean(x, dim=1)
         else: 
