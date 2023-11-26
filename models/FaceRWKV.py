@@ -87,6 +87,7 @@ class FaceRWKV(nn.Module):
         if self.pos_enc:
             x = x + self.pos_embedding    
         # x.shape = (batch_size, 14*14, embed_dim)
+        #print if grad is calc
         x = self.blocks(x)
         # Extract last hidden state
         # x.shape = (batch_size, n_patches, embed_dim) -> (batch_size, embed_dim)
