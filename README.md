@@ -43,4 +43,6 @@ The repository structure is organized as follows:
 5. Run the training script using `python train.py --config config/config.yml`.
 
 ## Results
-Detailed results, including performance metrics, comparison with SOTA, and
+Our results are summarized in the following table:
+
+<img src="results.png" alt="Architecture" width="600"/>
