@@ -19,16 +19,16 @@ class CAERSRDataset(Dataset):
         self.data_dir = data_dir
         self.class_dict = self.create_class_dict() # {'class_name': 0, 'class_name': 1, ...}
         self.file_paths = self.get_file_paths() # ['data_dir/class_name/file_name', ...]
-        if mode=="train":
+        if mode=="test":
             self.transforms = transforms.Compose([
                 transforms.ToTensor(),
                 transforms.Resize(resolution),
             ])
-        elif mode=="test":
+        elif mode=="train":
             self.transforms = transforms.Compose([
                 transforms.ToTensor(),
                 transforms.Resize(resolution),
-                transforms.RandomHorizontalFlip(p=1)
+                transforms.RandomHorizontalFlip()
             ])
         else:
             raise ValueError("Invalid mode. Must be either 'train' or 'test'.")
