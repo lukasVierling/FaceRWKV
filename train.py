@@ -80,9 +80,9 @@ def main(args=None):
     config.ctx_len = int(config.resolution[0]*config.resolution[1] / (config.patch_size**2)) #should reduce unnecessary padding
      #length of the sequence, necessary to determine positional encoding in model
 
-    train_dataset = CAERSRDataset(train_data_dir, config.resolution)
-    val_dataset = CAERSRDataset(val_data_dir, config.resolution)
-    test_dataset = CAERSRDataset(test_data_dir, config.resolution)
+    train_dataset = CAERSRDataset(train_data_dir, config.resolution, mode="train")
+    val_dataset = CAERSRDataset(val_data_dir, config.resolution, mode="test")
+    test_dataset = CAERSRDataset(test_data_dir, config.resolution, mode="test")
 
     trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
     valloader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size_val, shuffle=False, num_workers=2)
@@ -93,7 +93,7 @@ def main(args=None):
     
     #model = FaceRWKV(config)
     model = CNNClassifier(train_dataset.get_classes())
-    
+
     CUDA = torch.cuda.is_available()
     if CUDA:
         device = torch.device('cuda:0')
@@ -109,7 +109,6 @@ def main(args=None):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     # Learning rate warmup
     scheduler = WarmupCosineAnnealingLR(optimizer, warmup_epochs, max_epochs, warmup_factor)
-
 
     #tensorboard setup
     writer = tensorboardX.SummaryWriter()
