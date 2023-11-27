@@ -129,9 +129,26 @@ class RWKVConfig:
         self.resnet = False
 
     def calculate_decay_speed(self, h):
+        """
+        Calculate the decay speed for a given layer.
+
+        Args:
+        - h: Layer index.
+
+        Returns:
+        - Decay speed value.
+
+        """
         return math.pow(self.ctx_len, -(h + 1) / (self.n_head - 1))
     
     def from_yaml(self, yaml_file):
+        """
+        Load the configuration from a YAML file.
+
+        Args:
+        - yaml_file: Path to the YAML file.
+
+        """
         with open(yaml_file, 'r') as f:
             config_dict = yaml.safe_load(f)
 
