@@ -90,8 +90,10 @@ def main(args=None):
 
     #get classes
     config.num_classes = train_dataset.get_classes()
-    model = FaceRWKV(config)
-    #model = CNNClassifier(train_dataset.get_classes())
+    
+    #model = FaceRWKV(config)
+    model = CNNClassifier(train_dataset.get_classes())
+    
     CUDA = torch.cuda.is_available()
     if CUDA:
         device = torch.device('cuda:0')
