@@ -153,7 +153,7 @@ def main(args=None):
             scheduler.step()
 
             # print statistics
-            running_loss += loss.item()
+            running_loss += loss.detach().item() #TODO Check this
             if i % log_n == log_n-1:
                 #print('Epoch: %d -------- Step: %5d -------- Loss: %.3f' % (epoch+1, i+1, running_loss/log_n))
                 running_loss = 0.0
