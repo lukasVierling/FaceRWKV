@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
+import torch.optim as optim
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import numpy as np
 import torch.utils.data
 from tqdm import tqdm
@@ -21,8 +23,6 @@ from utils import WarmupCosineAnnealingLR
 
 import yaml
 
-import torch.optim as optim
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 def main(args=None):
     #validate function

@@ -24,11 +24,15 @@ We compare our model against the current State-of-the-Art (SOTA) method and a tr
 
 ## Repository Structure
 The repository structure is organized as follows:
+- `data` : Contains the CAES-R dataset.
+- `runs` : Contains tensorboard logs.
+- `runs` : Contains saved checkpoints.
+- `utils.py` : Contains a custom learning rate scheduler.
 - `models/FaceRWKV`: Contains the implementation of our model.
 - `models/RWKV`: Contains the code from the RWKV GitHub repository.
 - `models/Preprocessing`: Contains code to create a sequence from a picture, uses ResNet optional.
 - `config`: Contains the configuration files for training.
-- `Dataset`: Contains the CAES-R dataset.
+- `Dataset`: Contains the custom CAES-R dataset.
 - `train.py`: Script for training the models. Usage: `python train.py --config <path to config>`
 
 ## Getting Started
