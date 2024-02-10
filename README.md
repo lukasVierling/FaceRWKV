@@ -39,7 +39,7 @@ The repository structure is organized as follows:
 1. Clone this repository.
 2. Install the required dependencies specified in `requirements.txt`.
 3. Prepare the CAES-R dataset or specify the dataset path in the configuration file.
-4. Configure the training parameters in `conifg/config.yml.
+4. Configure the training parameters in `config/config.yml.
 5. Run the training script using `python train.py --config config/config.yml`.
 
 ## Results
